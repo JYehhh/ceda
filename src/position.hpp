@@ -2,6 +2,7 @@
 #pragma once
 
 #include "types.hpp"
+#include <span>
 
 class Position {
 public:
@@ -15,6 +16,8 @@ public:
     int      get_castling_rights() const;
     bool     is_in_check(Colour c) const;
     bool     is_attacked(Square sq, Colour by) const;
+    bool     ray_scan_attacked(Square sq, Colour by, Piece p, std::span<pii> threat_dirs) const; 
+    bool     attack_tables_attacked(Square sq, Colour by, Piece p, Bitboard bb) const;
 
     // mutation
     void make_move(Move m);
@@ -29,7 +32,7 @@ private:
     Bitboard pieces[N_COLOURS][N_PIECES];
     Bitboard occupied_by[N_COLOURS];
     Bitboard occupied;
-    int      mailbox[N_SQUARES];
+    Piece    mailbox[N_SQUARES];
     Square   ep_square;
     int      castling_rights;
     Colour   side_to_move;

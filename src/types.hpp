@@ -1,6 +1,9 @@
 // types.hpp
 #pragma once
 #include <cstdint>
+#include <utility>
+
+using pii = std::pair<int, int>;
 
 using Bitboard  = uint64_t;
 using Move      = uint16_t;
@@ -29,7 +32,7 @@ bit index: 15 14 13 12 | 11 10  9  8  7  6 |  5  4  3  2  1  0
 */
 
 enum Colour : int { WHITE, BLACK };
-enum Piece  : int { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING };
+enum Piece  : int { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, NO_PIECE };
 enum Square : int {
     A1, B1, C1, D1, E1, F1, G1, H1,
     A2, B2, C2, D2, E2, F2, G2, H2,
