@@ -30,8 +30,34 @@ bit index: 15 14 13 12 | 11 10  9  8  7  6 |  5  4  3  2  1  0
 14	PROMO_CAPTURE_ROOK	    Capture + promote to rook
 15	PROMO_CAPTURE_QUEEN	    Capture + promote to queen
 */
+enum MoveFlag : int {
+    QUIET                = 0,
+    DOUBLE_PUSH          = 1,
+    CASTLE_KING          = 2,
+    CASTLE_QUEEN         = 3,
+    CAPTURE              = 4,
+    EN_PASSANT           = 5,
+    //                     6, 7 unused - keeps the bits below meaningful
+    PROMO_KNIGHT         = 8,
+    PROMO_BISHOP         = 9,
+    PROMO_ROOK           = 10,
+    PROMO_QUEEN          = 11,
+    PROMO_CAPTURE_KNIGHT = 12,
+    PROMO_CAPTURE_BISHOP = 13,
+    PROMO_CAPTURE_ROOK   = 14,
+    PROMO_CAPTURE_QUEEN  = 15,
+};
+
+// Masks that the layout above pays for.
+constexpr int CAPTURE_BIT = 4;
+constexpr int PROMO_BIT   = 8;
 
 enum Colour : int { WHITE, BLACK };
+
+constexpr Colour operator~(Colour c) { return static_cast<Colour>(c ^ 1); }
+
+static_assert(WHITE == 0 && BLACK == 1, "operator~(Colour) relies on these values");
+
 enum Piece  : int { PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING, NO_PIECE };
 enum Square : int {
     A1, B1, C1, D1, E1, F1, G1, H1,

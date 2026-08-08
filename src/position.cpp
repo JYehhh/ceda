@@ -59,7 +59,7 @@ bool Position::is_in_check(Colour c) const {
 }
 
 bool Position::ray_scan_attacked(Square sq, Colour by, Piece p, std::span<pii> threat_dirs) const {
-    int my = by == Colour::WHITE ? Colour::BLACK : Colour::WHITE;
+    Colour my = ~by;
     for (const pii d : threat_dirs) {
         Square cur = sq;
         while (true) {
@@ -87,7 +87,7 @@ bool Position::attack_tables_attacked(Square sq, Colour by, Piece p, Bitboard bb
 // Returns true if the given square is attacked by any piece of color `by`.
 // Used for check detection, castling legality ("can't castle through check"), and legality filtering.
 bool Position::is_attacked(Square sq, Colour by) const {
-    int my = by == Colour::WHITE ? Colour::BLACK : Colour::WHITE;
+    Colour my = ~by;
     Bitboard kna = KNIGHT_ATTACKS[sq];
     Bitboard kia = KING_ATTACKS[sq];
     Bitboard pa = PAWN_ATTACKS[my][sq];
@@ -116,7 +116,16 @@ bool Position::is_attacked(Square sq, Colour by) const {
 //   - fullmove number (increment after black's move)
 //   - side_to_move (flip)
 // Must handle special cases: captures, en passant, castling, promotion.
-void Position::make_move(Move m) {}
+void Position::make_move(Move m) {
+    MoveFlag mf = static_cast<MoveFlag>(m << 12);
+    int to = (m & (63 << 6)) >> 6;
+    int from = m & 63;
+
+    side_to_move = static_cast<Colour>(side_to_move ^ 1);
+    fullmove_number++;
+    // halfmove_clock
+    
+}
 
 // Reverses make_move exactly, restoring the position to its prior state.
 // Must restore ALL state that make_move changed: bitboards, mailbox, castling rights,
