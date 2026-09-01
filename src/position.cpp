@@ -108,6 +108,37 @@ bool Position::is_attacked(Square sq, Colour by) const {
     return false;
 }
 
+void Position::move_piece(int from, int to, bool capture) {
+    Piece p = mailbox[from];
+    Piece to_p = mailbox[to];
+    // mailbox
+    mailbox[from] = NO_PIECE;
+    mailbox[to] = p;
+    // Pieces
+    pieces[side_to_move][p] ^= (1 << from);
+    pieces[side_to_move][p] |= (1 << to);
+    // Occupied By
+    occupied_by[side_to_move] ^= (1 << from);
+    occupied_by[side_to_move] |= (1 << to);
+    // occupied
+    occupied ^= (1 << from);
+    occupied |= (1 << to);
+    
+    if (capture) {
+        Colour other = static_cast<Colour>(side_to_move ^ 1);
+        // remove the piece from opponent's tables
+        pieces[other][to_p] ^= (1 << to);
+        occupied_by[other] ^= (1 << to);
+    }
+    // update castling rights if applicable
+    if (p == Piece::KING) {
+        // if white moved, then we need to remove white's castling rights
+        if (side_to_move == Colour::BLACK) castling_rights &= (3 << 2); 
+        // if black moved, remove black's castling rights
+        if (side_to_move == Colour::WHITE) castling_rights &= 3;
+    }
+}
+
 // Applies the move to the board, updating:
 //   - the bitboards and mailbox for the moving piece (and captured piece if any)
 //   - castling rights (revoke if king or rook moves)
@@ -117,14 +148,33 @@ bool Position::is_attacked(Square sq, Colour by) const {
 //   - side_to_move (flip)
 // Must handle special cases: captures, en passant, castling, promotion.
 void Position::make_move(Move m) {
-    MoveFlag mf = static_cast<MoveFlag>(m << 12);
+    MoveFlag mf = static_cast<MoveFlag>(m >> 12);
     int to = (m & (63 << 6)) >> 6;
     int from = m & 63;
+    Piece mp = mailbox[from];
+    // ALWAYS MOVE
+    move_piece(from, to, mf == CAPTURE_BIT);
+    // EN PASSANTE
+    if (mf == EN_PASSANT) {
+        Piece take = mailbox[ep_square]; 
+        occupied ^= (1 << ep_square);
+        occupied_by[side_to_move ^ 1] ^= (1 << ep_square);
+        pieces[side_to_move ^ 1][take] ^= (1 << ep_square);
+    } 
+    // CASTLE
+    if (mf == CASTLE_KING) {
+        move_piece()   // move rook to the 
+    }
+    if (mf == CASTLE_QUEEN) {
 
+    }
+    // PROMOTION
+    //
+    // EVERY SINGLE MOVE
     side_to_move = static_cast<Colour>(side_to_move ^ 1);
     fullmove_number++;
-    // halfmove_clock
-    
+    if (mp == Piece::PAWN || mf == CAPTURE_BIT) halfmove_clock = 0;
+    else halfmove_clock += 1;
 }
 
 // Reverses make_move exactly, restoring the position to its prior state.

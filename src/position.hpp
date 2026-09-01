@@ -20,6 +20,7 @@ public:
     bool     attack_tables_attacked(Square sq, Colour by, Piece p, Bitboard bb) const;
 
     // mutation
+    void move_piece(int from, int to, bool capture);
     void make_move(Move m);
     void unmake_move(Move m);
 
@@ -34,7 +35,7 @@ private:
     Bitboard occupied;
     Piece    mailbox[N_SQUARES];
     Square   ep_square;
-    int      castling_rights;
+    int      castling_rights; // KQkq
     Colour   side_to_move;
     int      halfmove_clock;
     int      fullmove_number;
